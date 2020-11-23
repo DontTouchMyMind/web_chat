@@ -1,15 +1,33 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8"/>
-    <title>Chat Rooms</title>
-</head>
-<body>
-    What chat room would you like to enter?<br>
+{% extends 'chat/base.html' %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}Web Chat{% endblock %}
+
+{% block content %}
+
+    <h1>Welcome to the web chat</h1>
+    {% if request.user.is_authenticated and request.user.first_name %}
+       Hello, <p>{{ username }}<p>
+    {% else %}
+    {% endif %}
+
+    {% for user in users_list %}
+        <p>{{ user.username }}</p><input id="start-dialog" type="button" value="Start dialog" >
+    {% endfor %}
+
+        What chat room would you like to enter?<br>
     <input id="room-name-input" type="text" size="100"><br>
     <input id="room-name-submit" type="button" value="Enter">
 
+
+
     <script>
+        let sessionKey = '{{ request.session.session_key }}'
+        var currentUser = '{{ username }}';
+
         document.querySelector('#room-name-input').focus();
         document.querySelector('#room-name-input').onkeyup = function(e) {
             if (e.keyCode === 13) {  // enter, return
@@ -19,8 +37,14 @@
 
         document.querySelector('#room-name-submit').onclick = function(e) {
             var roomName = document.querySelector('#room-name-input').value;
+            {#window.location.pathname = '/chat/' + sessionKey + '/';#}
             window.location.pathname = '/chat/' + roomName + '/';
         };
+
+        document.querySelector('#start-dialog').onclick = function (e) {
+            var recipient = '{{ users_list.0.username}}';
+            window.location.pathname = '/chat/' + recipient + '/';
+        }
     </script>
-</body>
-</html>
+
+{% endblock %}

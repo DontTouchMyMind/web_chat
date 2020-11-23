@@ -12,14 +12,8 @@ from chat.forms import SignUpForm
 from chat.models import User
 
 
-def chat(request):
-    users_list = User.objects.all()
-
-    context = {
-        'users_list': users_list
-    }
-
-    return render(request, 'chat/chat.html', context)
+def test(request, recipient):
+    return HttpResponse(f'{recipient}=')
 
 
 def index(request):
@@ -27,21 +21,22 @@ def index(request):
 
     context = {
         'title': 'ListUser',
-        "users_list": user_list
+        'users_list': user_list,
+        'username': request.user.username,
     }
+
     return render(request, 'chat/index.html', context)
 
 
-@login_required
+@login_required(login_url='login')
 def room(request, room_name):
-    user_list = User.objects.all()
-    context = {
-        'room_name_json': mark_safe(json.dumps(room_name)),
-        'username': mark_safe(json.dumps(request.user.username)),
-        "users_list": user_list
-    }
 
+    context = {
+        'room_name': room_name,
+        'user_name': request.user.username,
+    }
     return render(request, 'chat/room.html', context)
+
 
 def signup_view(request):
     if request.method == 'POST':
@@ -68,7 +63,7 @@ def login_view(request):
                 login(request, user)
                 if user.status == 'b':
                     return redirect('block')
-                return redirect('webchat')
+                return redirect('index')
             else:
                 return redirect('signup')
     else:
